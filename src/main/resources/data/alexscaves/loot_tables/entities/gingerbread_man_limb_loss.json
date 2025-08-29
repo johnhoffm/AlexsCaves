@@ -1,7 +1,7 @@
 {
   "pools": [
     {
-      "name": "gingerbread",
+      "name": "limb_loss_crumbs",
       "rolls": 1,
       "entries": [
         {
@@ -11,20 +11,14 @@
           "functions": [
             {
               "function": "set_count",
-              "count": {
-                "min": 0,
-                "max": 1
-              }
-            },
-            {
-              "function": "looting_enchant",
-              "count": {
-                "min": 0,
-                "max": 1
-              }
+              "count": 1
             }
           ],
           "conditions": [
+            {
+              "condition": "random_chance",
+              "chance": 0.5
+            },
             {
               "condition": "inverted",
               "term": {

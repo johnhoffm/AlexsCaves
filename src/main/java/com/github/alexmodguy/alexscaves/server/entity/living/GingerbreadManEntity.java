@@ -5,6 +5,7 @@ import com.github.alexmodguy.alexscaves.server.entity.ai.*;
 import com.github.alexmodguy.alexscaves.server.entity.util.PossessedByLicowitch;
 import com.github.alexmodguy.alexscaves.server.entity.util.TargetsDroppedItems;
 import com.github.alexmodguy.alexscaves.server.item.ACItemRegistry;
+import com.github.alexmodguy.alexscaves.server.misc.ACLootTableRegistry;
 import com.github.alexmodguy.alexscaves.server.misc.ACSoundRegistry;
 import com.github.alexmodguy.alexscaves.server.misc.ACTagRegistry;
 import com.github.alexthe666.citadel.animation.Animation;
@@ -43,10 +44,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.UUID;
@@ -95,6 +99,7 @@ public class GingerbreadManEntity extends Monster implements IAnimatedEntity, ID
     public BlockPos jukeboxPosition;
     private int sitFor = -100;
     private int despawnFromOvenCooldown = 2000;
+    private boolean dyingFromOvenTimeout = false;
     private int fleeFor = 0;
     private double lastStepX = 0;
     private double lastStepZ = 0;
@@ -243,6 +248,7 @@ public class GingerbreadManEntity extends Monster implements IAnimatedEntity, ID
         }
         if(this.isOvenSpawned()){
             if(despawnFromOvenCooldown-- < 0){
+                this.dyingFromOvenTimeout = true;
                 this.kill();
                 this.spawnAtLocation(this.getItemInHand(InteractionHand.MAIN_HAND));
                 this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -536,10 +542,11 @@ public class GingerbreadManEntity extends Monster implements IAnimatedEntity, ID
     }
 
     @Override
-    protected void dropFromLootTable(DamageSource damageSource, boolean b) {
-        if(!this.isOvenSpawned()){
-            super.dropFromLootTable(damageSource, b);
+    protected void dropAllDeathLoot(DamageSource damageSource) {
+        if(this.dyingFromOvenTimeout) {
+            return;
         }
+        super.dropAllDeathLoot(damageSource);
     }
 
     protected void dropExperience() {
@@ -573,9 +580,14 @@ public class GingerbreadManEntity extends Monster implements IAnimatedEntity, ID
             this.level().addParticle(itemParticleOption, vec31.x, vec31.y, vec31.z, ((double) this.random.nextFloat() - 0.5D) * 0.2D, ((double) this.random.nextFloat() - 0.5D) * 0.2D, ((double) this.random.nextFloat() - 0.5D) * 0.2D);
         }
         if(!level().isClientSide){
-            if(!isOvenSpawned() && shouldDropLoot() && random.nextInt(2) == 0 && this.isAlive()){
-                this.spawnAtLocation(new ItemStack(ACItemRegistry.GINGERBREAD_CRUMBS.get()));
+            if(this.dyingFromOvenTimeout || !this.isAlive()){
+                return;
             }
+            // Use loot table for limb loss drops
+            LootTable loottable = this.level().getServer().getLootData().getLootTable(ACLootTableRegistry.GINGERBREAD_MAN_LIMB_LOSS);
+            LootParams lootparams = (new LootParams.Builder((net.minecraft.server.level.ServerLevel)this.level())).withParameter(LootContextParams.THIS_ENTITY, this).withParameter(LootContextParams.ORIGIN, this.position()).withParameter(LootContextParams.DAMAGE_SOURCE, this.getLastDamageSource() != null ? this.getLastDamageSource() : this.damageSources().generic()).create(LootContextParamSets.ENTITY);
+            loottable.getRandomItems(lootparams, this.getLootTableSeed(), this::spawnAtLocation);
+            
             if(arm){
                 if(this.isLeftHanded() == left){
                     this.spawnAtLocation(this.getItemInHand(InteractionHand.MAIN_HAND));

@@ -24,5 +24,6 @@ public class ACLootTableRegistry {
     public static final ResourceLocation LICOWITCH_TOWER_CHEST = ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "chests/licowitch_tower");
     public static final ResourceLocation SECRET_LICOWITCH_TOWER_CHEST = ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "chests/licowitch_tower_secret");
     public static final ResourceLocation GINGERBREAD_TOWN_CHEST = ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "chests/gingerbread_town");
+    public static final ResourceLocation GINGERBREAD_MAN_LIMB_LOSS = ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "entities/gingerbread_man_limb_loss");
 
 }
