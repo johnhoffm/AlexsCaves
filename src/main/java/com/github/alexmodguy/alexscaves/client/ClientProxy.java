@@ -126,6 +126,8 @@ public class ClientProxy extends CommonProxy {
     public static Vec3 acSkyOverrideColor = Vec3.ZERO;
     public static boolean disabledBiomeAmbientLightByOtherMod = false;
 
+    @SuppressWarnings("removal")
+    @Override
     public void commonInit() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         bus.addListener(this::setupParticles);
@@ -135,6 +137,8 @@ public class ClientProxy extends CommonProxy {
         bus.addListener(this::onRegisterTooltips);
     }
 
+    @SuppressWarnings("removal")
+    @Override
     public void clientInit() {
         MinecraftForge.EVENT_BUS.register(new ClientEvents());
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();

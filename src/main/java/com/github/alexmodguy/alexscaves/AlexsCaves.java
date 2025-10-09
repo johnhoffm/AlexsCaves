@@ -88,6 +88,7 @@ public class AlexsCaves {
         CLIENT_CONFIG_SPEC = clientPair.getRight();
     }
 
+    @SuppressWarnings("removal")
     public AlexsCaves() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, COMMON_CONFIG_SPEC, "alexscaves-general.toml");
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, CLIENT_CONFIG_SPEC, "alexscaves-client.toml");

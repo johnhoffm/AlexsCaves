@@ -101,7 +101,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class CommonEvents {
-
+    @SuppressWarnings("removal")
     @SubscribeEvent
     public void resizeEntity(EntityEvent.Size event) {
         if (event.getEntity() instanceof MagneticEntityAccessor magnet && event.getEntity().getEntityData().isDirty()) {

@@ -61,6 +61,7 @@ public class DarknessArmorItem extends ArmorItem implements CustomArmorPostRende
         return SoundEvents.EMPTY;
     }
 
+    @SuppressWarnings("removal")
     @Override
     public void onArmorTick(ItemStack stack, Level level, Player player) {
         if (stack.is(ACItemRegistry.CLOAK_OF_DARKNESS.get())) {
