@@ -3,8 +3,6 @@ package com.github.alexmodguy.alexscaves.server.event;
 import com.github.alexmodguy.alexscaves.AlexsCaves;
 import com.github.alexmodguy.alexscaves.server.block.ACBlockRegistry;
 import com.github.alexmodguy.alexscaves.server.block.fluid.ACFluidRegistry;
-import com.github.alexmodguy.alexscaves.server.config.ACServerConfig;
-import com.github.alexmodguy.alexscaves.server.config.BiomeGenerationConfig;
 import com.github.alexmodguy.alexscaves.server.enchantment.ACEnchantmentRegistry;
 import com.github.alexmodguy.alexscaves.server.entity.ACEntityRegistry;
 import com.github.alexmodguy.alexscaves.server.entity.ACFrogRegistry;
@@ -23,15 +21,10 @@ import com.github.alexmodguy.alexscaves.server.misc.ACTagRegistry;
 import com.github.alexmodguy.alexscaves.server.potion.ACEffectRegistry;
 import com.github.alexmodguy.alexscaves.server.potion.DarknessIncarnateEffect;
 import com.github.alexmodguy.alexscaves.server.potion.SugarRushEffect;
-import com.github.alexthe666.citadel.server.event.EventReplaceBiome;
 import com.github.alexthe666.citadel.server.tick.ServerTickRateTracker;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -52,7 +45,6 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -70,11 +62,11 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityEvent;
@@ -82,14 +74,11 @@ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerFlyableFallEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppingEvent;
 import net.minecraftforge.event.village.VillagerTradesEvent;
 import net.minecraftforge.event.village.WandererTradesEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -104,7 +93,7 @@ public class CommonEvents {
     @SuppressWarnings("removal")
     @SubscribeEvent
     public void resizeEntity(EntityEvent.Size event) {
-        if (event.getEntity() instanceof MagneticEntityAccessor magnet && event.getEntity().getEntityData().isDirty()) {
+        if (event.getEntity().isAddedToWorld() && event.getEntity() instanceof MagneticEntityAccessor magnet && event.getEntity().getEntityData().isDirty()) {
             Direction dir = magnet.getMagneticAttachmentFace();
             float defaultHeight = event.getOldSize().height;
             float defaultEyeHeight = event.getEntity().getEyeHeightAccess(event.getPose(), event.getOldSize());
@@ -337,8 +326,8 @@ public class CommonEvents {
     }
 
     @SubscribeEvent
-    public void travelToDimension(EntityTravelToDimensionEvent event){
-        if(event.getEntity() instanceof Player player && player.hasEffect(ACEffectRegistry.SUGAR_RUSH.get())){
+    public void travelToDimension(EntityTravelToDimensionEvent event) {
+        if (event.getEntity() instanceof Player player && player.hasEffect(ACEffectRegistry.SUGAR_RUSH.get())) {
             SugarRushEffect.leaveSlowMotion(player, player.level());
         }
     }
@@ -464,14 +453,14 @@ public class CommonEvents {
         float f = player.getXRot();
         float f1 = player.getYRot();
         Vec3 vec3 = player.getEyePosition();
-        float f2 = Mth.cos(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f3 = Mth.sin(-f1 * ((float)Math.PI / 180F) - (float)Math.PI);
-        float f4 = -Mth.cos(-f * ((float)Math.PI / 180F));
-        float f5 = Mth.sin(-f * ((float)Math.PI / 180F));
+        float f2 = Mth.cos(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
+        float f3 = Mth.sin(-f1 * ((float) Math.PI / 180F) - (float) Math.PI);
+        float f4 = -Mth.cos(-f * ((float) Math.PI / 180F));
+        float f5 = Mth.sin(-f * ((float) Math.PI / 180F));
         float f6 = f3 * f4;
         float f7 = f2 * f4;
         double d0 = player.getBlockReach();
-        Vec3 vec31 = vec3.add((double)f6 * d0, (double)f5 * d0, (double)f7 * d0);
+        Vec3 vec31 = vec3.add((double) f6 * d0, (double) f5 * d0, (double) f7 * d0);
         return level.clip(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, fluid, player));
     }
 
