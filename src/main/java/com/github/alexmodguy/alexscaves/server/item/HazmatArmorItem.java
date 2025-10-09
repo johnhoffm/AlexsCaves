@@ -26,6 +26,7 @@ public class HazmatArmorItem extends ArmorItem {
         consumer.accept((IClientItemExtensions) AlexsCaves.PROXY.getArmorProperties());
     }
 
+    @SuppressWarnings("removal")
     @Override
     public void onArmorTick(ItemStack stack, Level level, Player player) {
         if (stack.is(ACItemRegistry.HAZMAT_MASK.get()) && Math.cos(player.tickCount * 0.05F) >= 0.9F) {
