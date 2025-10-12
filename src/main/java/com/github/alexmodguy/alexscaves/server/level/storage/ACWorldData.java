@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 public class ACWorldData extends SavedData {
 
     private static final String IDENTIFIER = "alexscaves_world_data";
+    public static final int MIN_DEEP_ONE_REPUTATION = -100;
+    public static final int MAX_DEEP_ONE_REPUTATION = 100;
     private Map<UUID, Integer> deepOneReputations = new HashMap<>();
     private boolean primordialBossDefeatedOnce = false;
     private long firstPrimordialBossDefeatTimestamp = -1;
@@ -88,7 +90,7 @@ public class ACWorldData extends SavedData {
     }
 
     public void setDeepOneReputation(UUID uuid, int reputation) {
-        deepOneReputations.put(uuid, Mth.clamp(reputation, -100, 100));
+        deepOneReputations.put(uuid, Mth.clamp(reputation, MIN_DEEP_ONE_REPUTATION, MAX_DEEP_ONE_REPUTATION));
     }
 
     public boolean isPrimordialBossActive(Level level){

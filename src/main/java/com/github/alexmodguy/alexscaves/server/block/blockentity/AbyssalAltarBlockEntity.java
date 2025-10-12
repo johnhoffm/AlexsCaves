@@ -31,7 +31,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 
 public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer {
 
@@ -46,7 +45,6 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
     private static final int[] slotsTop = new int[]{0};
     private ItemStack popStack;
     private LivingEntity lastInteracter;
-    private UUID placingPlayer = null;
     private long lastInteractionTime = 0;
     private boolean slideImpulse;
 
@@ -87,10 +85,6 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
                         deepOne.setItemInHand(InteractionHand.MAIN_HAND, itemEntity.getItem());
                         deepOne.setAnimation(deepOne.getTradingAnimation());
                         deepOne.playSound(deepOne.getAdmireSound());
-                        if (entity.placingPlayer != null) {
-                            deepOne.addReputation(entity.placingPlayer, 5);
-                            entity.placingPlayer = null;
-                        }
                         kill = true;
                     }
                     itemEntity.setItem(drop);
@@ -133,9 +127,7 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
             BlockPos blockPos = this.getBlockPos();
             AlexsCaves.sendMSGToAll(new WorldEventMessage(6, blockPos.getX(), blockPos.getY(), blockPos.getZ()));
         }
-        if (entity instanceof Player) {
-            placingPlayer = entity.getUUID();
-        } else {
+        if (!(entity instanceof Player)) {
             lastInteractionTime = entity.level().getGameTime();
         }
     }
@@ -223,9 +215,6 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
         if (compound.contains("PopStack")) {
             this.popStack = ItemStack.of(compound.getCompound("PopStack"));
         }
-        if (compound.hasUUID("PlayerUUID")) {
-            placingPlayer = compound.getUUID("PlayerUUID");
-        }
         slideProgress = compound.getFloat("SlideAmount");
         prevSlideProgress = compound.getFloat("PrevSlideAmount");
 
@@ -240,9 +229,6 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
             CompoundTag stackTag = new CompoundTag();
             this.popStack.save(stackTag);
             compound.put("PopStack", stackTag);
-        }
-        if (this.placingPlayer != null) {
-            compound.putUUID("PlayerUUID", this.placingPlayer);
         }
         compound.putFloat("Angle", itemAngle);
         compound.putFloat("SlideAmount", slideProgress);

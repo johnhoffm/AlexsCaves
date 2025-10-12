@@ -225,10 +225,12 @@ public abstract class DeepOneBaseEntity extends PathfinderMob implements IAnimat
                         
                         // this.level().broadcastEntityEvent(this, (byte) 68);
                         
-                        double advancementRange = 20.0D;
-                        for (Player player : level().getNearbyPlayers(TargetingConditions.forNonCombat().range(advancementRange), this, this.getBoundingBox().inflate(advancementRange))) {
-                            if (player.distanceTo(this) < advancementRange) {
+                        // Advancement and reputation range
+                        double playerRange = 20.0D;
+                        for (Player player : level().getNearbyPlayers(TargetingConditions.forNonCombat().range(playerRange), this, this.getBoundingBox().inflate(playerRange))) {
+                            if (player.distanceTo(this) < playerRange) {
                                 ACAdvancementTriggerRegistry.DEEP_ONE_TRADE.triggerForEntity(player);
+                                this.addReputation(player.getUUID(), 1);
                             }
                         }
                         spawnedLootItem = true;

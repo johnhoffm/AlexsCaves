@@ -366,10 +366,8 @@ public class MineGuardianEntity extends Monster {
         super.dropAllDeathLoot(damageSource);
         if (!level().isClientSide && damageSource.getEntity() instanceof Player player) {
             ACWorldData worldData = ACWorldData.get(level());
-            int relations = worldData.getDeepOneReputation(player.getUUID());
-            if (relations < 0) {
-                worldData.setDeepOneReputation(player.getUUID(), relations + random.nextInt(3) + 1);
-            }
+            int currentReputation = worldData.getDeepOneReputation(player.getUUID());
+            worldData.setDeepOneReputation(player.getUUID(), currentReputation + 5);
         }
     }
 

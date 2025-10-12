@@ -46,7 +46,7 @@ public class GazingPearlItem extends Item {
             int reputation = tag.getInt("Reputation");
             DeepOneReaction reaction = DeepOneReaction.fromReputation(reputation);
             String key = "item.alexscaves.gazing_pearl.desc_" + reaction.name().toLowerCase(Locale.ROOT);
-            tooltip.add(Component.translatable(key).withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
+            tooltip.add(Component.translatable(key).append(" (" + reputation + ")").withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
         }
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }

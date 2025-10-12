@@ -5,9 +5,14 @@ import net.minecraft.world.entity.player.Player;
 
 public enum DeepOneReaction {
     STALKING(0, 80),
-    AGGRESSIVE(0, 40),
-    NEUTRAL(10, 25),
-    HELPFUL(8, 30);
+    AGGRESSIVE(0, 50),
+    NEUTRAL(30, 40),
+    HELPFUL(20, 30);
+
+    // Reputation thresholds. Must be in ascending order.
+    public static final int AGGRESSIVE_THRESHOLD = -50;
+    public static final int STALKING_THRESHOLD = 50;
+    public static final int NEUTRAL_THRESHOLD = 90;
 
     private double minDistance;
     private double maxDistance;
@@ -26,13 +31,13 @@ public enum DeepOneReaction {
     }
 
     public static DeepOneReaction fromReputation(int rep) {
-        if (rep <= -10) {
+        if (rep <= AGGRESSIVE_THRESHOLD) {
             return AGGRESSIVE;
         }
-        if (rep <= 10) {
+        if (rep <= STALKING_THRESHOLD) {
             return STALKING;
         }
-        if (rep <= 30) {
+        if (rep <= NEUTRAL_THRESHOLD) {
             return NEUTRAL;
         }
         return HELPFUL;
