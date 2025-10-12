@@ -100,14 +100,25 @@ public class DeepOneBarterGoal extends Goal {
             mob.getNavigation().moveTo(altarPos.getX() + 0.5F, altarPos.getY(), altarPos.getZ() + 0.5F, 1);
         } else {
             mob.setLastAltarPos(altarPos);
-            mob.setTradingLockedTime(50);
             mob.getNavigation().stop();
             if (mob.level().getBlockEntity(altarPos) instanceof AbyssalAltarBlockEntity altar) {
-                if (altar.getItem(0).is(ACTagRegistry.DEEP_ONE_BARTERS)) {
-                    if (altar.queueItemDrop(altar.getItem(0))) {
+                if (altar.getItem(0).is(ACTagRegistry.DEEP_ONE_BARTERS) && !mob.isTradingLocked()) {
+                    ItemStack currentStack = altar.getItem(0);
+                    // Only take 1 item at a time
+                    ItemStack singleItem = currentStack.copy();
+                    singleItem.setCount(1);
+                    
+                    // Only remove item from altar if queueing succeeds
+                    if (altar.queueItemDrop(singleItem)) {
+                        // Lock the Deep One from taking another item immediately
+                        mob.setTradingLockedTime(20 * 25);
                         mob.level().broadcastEntityEvent(mob, (byte) 69);
                         altar.onEntityInteract(mob, true);
-                        altar.setItem(0, ItemStack.EMPTY);
+                        currentStack.shrink(1);
+                        if (currentStack.isEmpty()) {
+                            altar.setItem(0, ItemStack.EMPTY);
+                        }
+
                     }
                 }
             }

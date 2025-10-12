@@ -211,18 +211,20 @@ public abstract class DeepOneBaseEntity extends PathfinderMob implements IAnimat
             if (altarPos != null) {
                 Vec3 center = Vec3.atCenterOf(altarPos);
                 if (this.getAnimationTick() > getTradingAnimation().getDuration() - 10) {
-                    if (level().getBlockEntity(altarPos) instanceof AbyssalAltarBlockEntity altar && !spawnedLootItem) {
+                    if (level().getBlockEntity(altarPos) instanceof AbyssalAltarBlockEntity && !spawnedLootItem) {
                         List<ItemStack> possibles = generateBarterLoot();
                         ItemStack stack = possibles.isEmpty() ? ItemStack.EMPTY : possibles.get(0);
-                        if (altar.getItem(0).isEmpty()) {
-                            altar.setItem(0, stack);
-                            this.level().broadcastEntityEvent(this, (byte) 68);
-                            altar.onEntityInteract(this, false);
-                        } else {
-                            Vec3 vec3 = center.add(0, 0.5F, 0);
-                            ItemEntity itemEntity = new ItemEntity(level(), vec3.x, vec3.y, vec3.z, stack);
-                            level().addFreshEntity(itemEntity);
-                        }
+                        
+                        // Throw the traded item into the water above the altar instead of placing on altar
+                        Vec3 vec3 = center.add(0, 0.5F, 0);
+                        ItemEntity itemEntity = new ItemEntity(level(), vec3.x, vec3.y, vec3.z, stack);
+                        itemEntity.setGlowingTag(true);
+                        itemEntity.setDefaultPickUpDelay();
+
+                        level().addFreshEntity(itemEntity);
+                        
+                        // this.level().broadcastEntityEvent(this, (byte) 68);
+                        
                         double advancementRange = 20.0D;
                         for (Player player : level().getNearbyPlayers(TargetingConditions.forNonCombat().range(advancementRange), this, this.getBoundingBox().inflate(advancementRange))) {
                             if (player.distanceTo(this) < advancementRange) {

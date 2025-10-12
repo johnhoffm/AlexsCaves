@@ -208,7 +208,6 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
 
     @Override
     public void setItem(int index, ItemStack stack) {
-        boolean flag = !stack.isEmpty() && ItemStack.isSameItemSameTags(stack, this.stacks.get(index));
         this.stacks.set(index, stack);
         if (!stack.isEmpty() && stack.getCount() > this.getMaxStackSize()) {
             stack.setCount(this.getMaxStackSize());
@@ -265,7 +264,7 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
 
     @Override
     public int getMaxStackSize() {
-        return 64;
+        return 1;
     }
 
     @Override
@@ -295,7 +294,7 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
 
     @Override
     public boolean canPlaceItem(int index, ItemStack stack) {
-        return true;
+        return this.getItem(index).isEmpty();
     }
 
     @Override
