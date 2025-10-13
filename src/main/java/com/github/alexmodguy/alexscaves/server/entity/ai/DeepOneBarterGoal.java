@@ -4,6 +4,7 @@ import com.github.alexmodguy.alexscaves.server.block.AbyssalAltarBlock;
 import com.github.alexmodguy.alexscaves.server.block.blockentity.AbyssalAltarBlockEntity;
 import com.github.alexmodguy.alexscaves.server.block.poi.ACPOIRegistry;
 import com.github.alexmodguy.alexscaves.server.entity.living.DeepOneBaseEntity;
+import com.github.alexmodguy.alexscaves.server.level.biome.ACBiomeRegistry;
 import com.github.alexmodguy.alexscaves.server.misc.ACTagRegistry;
 import com.github.alexthe666.citadel.animation.IAnimatedEntity;
 import net.minecraft.core.BlockPos;
@@ -37,6 +38,10 @@ public class DeepOneBarterGoal extends Goal {
     public boolean canUse() {
         LivingEntity target = mob.getTarget();
         if ((target == null || !target.isAlive()) && mob.getAnimation() == IAnimatedEntity.NO_ANIMATION) {
+            // Deep Ones will only trade in the Abyssal Chasm biome
+            if (!mob.level().getBiome(mob.blockPosition()).is(ACBiomeRegistry.ABYSSAL_CHASM)) {
+                return false;
+            }
             if (executionCooldown-- > 0) {
                 return false;
             } else {

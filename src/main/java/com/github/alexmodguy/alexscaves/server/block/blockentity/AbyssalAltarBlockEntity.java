@@ -4,6 +4,7 @@ import com.github.alexmodguy.alexscaves.AlexsCaves;
 import com.github.alexmodguy.alexscaves.server.block.AbyssalAltarBlock;
 import com.github.alexmodguy.alexscaves.server.entity.living.DeepOneBaseEntity;
 import com.github.alexmodguy.alexscaves.server.message.WorldEventMessage;
+import com.github.alexmodguy.alexscaves.server.misc.ACTagRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -203,6 +204,16 @@ public class AbyssalAltarBlockEntity extends BaseContainerBlockEntity implements
         this.stacks.set(index, stack);
         if (!stack.isEmpty() && stack.getCount() > this.getMaxStackSize()) {
             stack.setCount(this.getMaxStackSize());
+        }
+
+        if (level != null && !level.isClientSide) {
+            boolean hasBarterItem = !stack.isEmpty() && stack.is(ACTagRegistry.DEEP_ONE_BARTERS);
+            boolean inAbyssalChasm = level.getBiome(this.worldPosition).is(com.github.alexmodguy.alexscaves.server.level.biome.ACBiomeRegistry.ABYSSAL_CHASM);
+            boolean shouldBeActive = hasBarterItem && inAbyssalChasm;
+            BlockState currentState = this.getBlockState();
+            if (currentState.getValue(AbyssalAltarBlock.ACTIVE) != shouldBeActive) {
+                level.setBlockAndUpdate(this.worldPosition, currentState.setValue(AbyssalAltarBlock.ACTIVE, shouldBeActive));
+            }
         }
         this.markUpdated();
     }
