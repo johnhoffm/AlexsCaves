@@ -475,6 +475,7 @@
   "item.alexscaves.ink_bomb": "Ink Bomb",
   "item.alexscaves.glow_ink_bomb": "Glow Ink Bomb",
   "item.alexscaves.magic_conch": "Magic Conch",
+  "item.alexscaves.magic_conch.insufficient_trust": "The deep ones do not trust you enough to come to your aid",
   "item.alexscaves.sea_staff": "Sea Staff",
   "item.alexscaves.sea_staff_inventory": "Sea Staff",
   "item.alexscaves.ortholance": "Ortholance",

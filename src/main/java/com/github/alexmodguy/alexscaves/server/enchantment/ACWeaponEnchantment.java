@@ -10,12 +10,18 @@ public class ACWeaponEnchantment extends Enchantment {
     private int levels;
     private int minXP;
     private String registryName;
+    private boolean isTreasure;
 
     protected ACWeaponEnchantment(String name, Rarity rarity, EnchantmentCategory category, int levels, int minXP, EquipmentSlot... equipmentSlot) {
+        this(name, rarity, category, levels, minXP, false, equipmentSlot);
+    }
+
+    protected ACWeaponEnchantment(String name, Rarity rarity, EnchantmentCategory category, int levels, int minXP, boolean isTreasure, EquipmentSlot... equipmentSlot) {
         super(rarity, category, equipmentSlot);
         this.levels = levels;
         this.minXP = minXP;
         this.registryName = name;
+        this.isTreasure = isTreasure;
     }
 
     public int getMinCost(int i) {
@@ -39,12 +45,14 @@ public class ACWeaponEnchantment extends Enchantment {
         return AlexsCaves.COMMON_CONFIG.enchantmentsInLoot.get();
     }
 
-    public boolean isDiscoverable() {
-        return true;
-    }
 
     public boolean isAllowedOnBooks() {
         return AlexsCaves.COMMON_CONFIG.enchantmentsInLoot.get();
+    }
+
+    @Override
+    public boolean isTreasureOnly() {
+        return isTreasure;
     }
 
     public String getName(){
