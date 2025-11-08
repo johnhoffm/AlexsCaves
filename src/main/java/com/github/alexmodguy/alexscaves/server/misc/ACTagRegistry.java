@@ -72,6 +72,7 @@ public class ACTagRegistry {
     public static final TagKey<EntityType<?>> AMBER_MONOLITH_SKIPS = registerEntityTag("amber_monolith_skips");
     public static final TagKey<EntityType<?>> RESISTS_ACID = registerEntityTag("resists_acid");
     public static final TagKey<EntityType<?>> RESISTS_RADIATION = registerEntityTag("resists_radiation");
+    public static final TagKey<EntityType<?>> RESISTS_RAYGUN = registerEntityTag("resists_raygun");
     public static final TagKey<EntityType<?>> SEAFLOOR_DENIZENS = registerEntityTag("seafloor_denizens");
     public static final TagKey<EntityType<?>> GLOWING_ENTITIES = registerEntityTag("glowing_entities");
     public static final TagKey<Biome> CAVE_MAP_BORDER_ON = registerBiomeTag("cave_map_border_on");

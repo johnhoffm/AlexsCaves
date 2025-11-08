@@ -33,12 +33,12 @@ public class RaygunBlastParticle extends TextureSheetParticle {
         this.hasPhysics = false;
         this.setSize(1.0F, 1.0F);
         this.setColor(1F, 1F, 1F);
-        this.lifetime = world.random.nextInt(20) + 20;
+        this.lifetime = world.random.nextInt(20) + 60;
         this.xo = this.x;
         this.yo = this.y;
         this.zo = this.z;
         this.randomRot = (float) (Math.PI * 2F * world.random.nextFloat());
-        this.quadSize = 0.2F + world.random.nextFloat() * 0.4F;
+        this.quadSize = 0.10F + world.random.nextFloat() * 0.2F;
         this.friction = 0F;
     }
 

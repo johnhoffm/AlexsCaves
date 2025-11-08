@@ -18,6 +18,7 @@ public class ACDamageTypes {
     public static final ResourceKey<DamageType> NUKE = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "nuke"));
     public static final ResourceKey<DamageType> RADIATION = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "radiation"));
     public static final ResourceKey<DamageType> RAYGUN = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "raygun"));
+    public static final ResourceKey<DamageType> GAMMA_RAY = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "gamma_ray"));
     public static final ResourceKey<DamageType> FORSAKEN_SONIC_BOOM = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "forsaken_sonic_boom"));
     public static final ResourceKey<DamageType> DESOLATE_DAGGER = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "desolate_dagger"));
     public static final ResourceKey<DamageType> DARK_ARROW = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, "dark_arrow"));
@@ -39,7 +40,11 @@ public class ACDamageTypes {
     }
 
     public static DamageSource causeRaygunDamage(RegistryAccess registryAccess, Entity source) {
-        return new DamageSourceRandomMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(RAYGUN), source, 1);
+        return new DamageSourceRandomMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(RAYGUN), source, 2);
+    }
+
+    public static DamageSource causeGammaRayDamage(RegistryAccess registryAccess, Entity source) {
+        return new DamageSourceRandomMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GAMMA_RAY), source, 2);
     }
 
     public static DamageSource causeForsakenSonicBoomDamage(RegistryAccess registryAccess, Entity source) {

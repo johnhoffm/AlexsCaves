@@ -124,7 +124,7 @@ public class SmallExplosionParticle extends TextureSheetParticle {
             SmallExplosionParticle particle = new SmallExplosionParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, spriteSet, true, 0XEEEEEE);
             particle.setSpriteFromAge(spriteSet);
             particle.lifetime = 5 + worldIn.random.nextInt(3);
-            particle.scale(0.6F + worldIn.random.nextFloat() * 0.3F);
+            particle.scale(0.3F + worldIn.random.nextFloat() * 0.15F);
             particle.setFadeColor(0X40EE40);
             return particle;
         }
@@ -141,7 +141,7 @@ public class SmallExplosionParticle extends TextureSheetParticle {
             SmallExplosionParticle particle = new SmallExplosionParticle(worldIn, x, y, z, xSpeed, ySpeed, zSpeed, spriteSet, true, 0XEEEEEE);
             particle.setSpriteFromAge(spriteSet);
             particle.lifetime = 5 + worldIn.random.nextInt(5);
-            particle.scale(0.5F + worldIn.random.nextFloat() * 0.5F);
+            particle.scale(0.25F + worldIn.random.nextFloat() * 0.25F);
             particle.setFadeColor(0X40EEDA);
             return particle;
         }
