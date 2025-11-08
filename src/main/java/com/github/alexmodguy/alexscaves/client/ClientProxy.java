@@ -702,7 +702,7 @@ public class ClientProxy extends CommonProxy {
                 if (soundEmitter instanceof LivingEntity livingEntity) {
                     RaygunSound sound;
                     AbstractTickableSoundInstance old = ENTITY_SOUND_INSTANCE_MAP.get(livingEntity.getId());
-                    if (old == null || !(old instanceof RaygunSound raygunSound && raygunSound.isSameEntity(livingEntity))) {
+                    if (old == null || !(old instanceof RaygunSound raygunSound && raygunSound.isSameEntity(livingEntity)) || !isSoundPlaying(old)) {
                         sound = new RaygunSound(livingEntity);
                         ENTITY_SOUND_INSTANCE_MAP.put(livingEntity.getId(), sound);
                     } else {

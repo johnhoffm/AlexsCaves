@@ -4,7 +4,6 @@ import com.github.alexmodguy.alexscaves.AlexsCaves;
 import com.github.alexmodguy.alexscaves.client.particle.ACParticleRegistry;
 import com.github.alexmodguy.alexscaves.server.block.ACBlockRegistry;
 import com.github.alexmodguy.alexscaves.server.enchantment.ACEnchantmentRegistry;
-import com.github.alexmodguy.alexscaves.server.entity.living.TremorzillaEntity;
 import com.github.alexmodguy.alexscaves.server.message.UpdateEffectVisualityEntityMessage;
 import com.github.alexmodguy.alexscaves.server.message.UpdateItemTagMessage;
 import com.github.alexmodguy.alexscaves.server.misc.ACDamageTypes;
@@ -21,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -73,30 +73,23 @@ public class RaygunItem extends Item implements UpdatesStackTags, AlwaysCombinab
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand interactionHand) {
         ItemStack itemstack = player.getItemInHand(interactionHand);
         if (hasCharge(itemstack)) {
+            // Consume 5 charge to start firing
+            int charge = getCharge(itemstack);
+            setCharge(itemstack, Math.min(charge + 5, MAX_CHARGE));
+
             player.startUsingItem(interactionHand);
-            player.playSound(ACSoundRegistry.RAYGUN_START.get());
+            playStartSound(level, player);
+
             return InteractionResultHolder.consume(itemstack);
         } else {
-            ItemStack ammo = findAmmo(player);
-            boolean flag = player.isCreative();
-            if (!ammo.isEmpty()) {
-                ammo.shrink(1);
-                flag = true;
-            }
-            if (flag) {
-                setCharge(itemstack, 0);
-                player.level().playSound((Player) null, player.getX(), player.getY(), player.getZ(), ACSoundRegistry.RAYGUN_RELOAD.get(), player.getSoundSource(), 1.0F, 1.0F);
-            } else {
-                player.level().playSound((Player) null, player.getX(), player.getY(), player.getZ(), ACSoundRegistry.RAYGUN_EMPTY.get(), player.getSoundSource(), 1.0F, 1.0F);
+            if (!tryReload(player, itemstack, level)) {
+                playEmptySound(level, player);
             }
             return InteractionResultHolder.fail(itemstack);
         }
     }
 
     private ItemStack findAmmo(Player entity) {
-        if (entity.isCreative()) {
-            return ItemStack.EMPTY;
-        }
         for (int i = 0; i < entity.getInventory().getContainerSize(); ++i) {
             ItemStack itemstack1 = entity.getInventory().getItem(i);
             if (AMMO.test(itemstack1)) {
@@ -104,6 +97,31 @@ public class RaygunItem extends Item implements UpdatesStackTags, AlwaysCombinab
             }
         }
         return ItemStack.EMPTY;
+    }
+
+    private void playEmptySound(Level level, LivingEntity entity) {
+        level.playSound((Player) null, entity.getX(), entity.getY(), entity.getZ(), ACSoundRegistry.RAYGUN_EMPTY.get(), entity.getSoundSource(), 1.0F, 1.0F);
+    }
+
+    private void playReloadSound(Level level, LivingEntity entity) {
+        level.playSound((Player) null, entity.getX(), entity.getY(), entity.getZ(), ACSoundRegistry.RAYGUN_RELOAD.get(), entity.getSoundSource(), 1.0F, 1.0F);
+    }
+
+    private void playStartSound(Level level, LivingEntity entity) {
+        level.playSound((Player) null, entity.getX(), entity.getY(), entity.getZ(), ACSoundRegistry.RAYGUN_START.get(), entity.getSoundSource(), 1.0F, 1.0F);
+    }
+
+    private boolean tryReload(Player player, ItemStack raygun, Level level) {
+        ItemStack ammo = findAmmo(player);
+        if (!ammo.isEmpty()) {
+            if (!level.isClientSide) {
+                ammo.shrink(1);
+            }
+            setCharge(raygun, 0);
+            playReloadSound(level, player);
+            return true;
+        }
+        return false;
     }
 
     public UseAnim getUseAnimation(ItemStack stack) {
@@ -160,18 +178,19 @@ public class RaygunItem extends Item implements UpdatesStackTags, AlwaysCombinab
                 AlexsCaves.sendMSGToServer(new UpdateItemTagMessage(living.getId(), stack));
             }
             living.stopUsingItem();
-            level.playSound((Player) null, living.getX(), living.getY(), living.getZ(), ACSoundRegistry.RAYGUN_EMPTY.get(), living.getSoundSource(), 1.0F, 1.0F);
+            playEmptySound(level, living);
             return;
         }
+
+        // Fire the raygun
         if (level.isClientSide) {
             setRayPosition(stack, vec3.x, vec3.y, vec3.z);
             AlexsCaves.PROXY.playWorldSound(living, (byte) 8);
             int efficency = stack.getEnchantmentLevel(ACEnchantmentRegistry.ENERGY_EFFICIENCY.get());
-            int divis = 2 + (int) Math.floor(efficency * 1.5F);
-            if (time >= 1F && i % divis == 0 && (!(living instanceof Player) || !((Player) living).isCreative())) {
-                int charge = getCharge(stack);
-                setCharge(stack, Math.min(charge + 1, MAX_CHARGE));
-            }
+            int chargePerTick = Math.max(1, 8 - (2 * efficency));
+            int charge = getCharge(stack);
+            int newCharge = Math.min(charge + chargePerTick, MAX_CHARGE);
+            setCharge(stack, newCharge);
         }
 
         float deltaX = 0;
@@ -229,8 +248,14 @@ public class RaygunItem extends Item implements UpdatesStackTags, AlwaysCombinab
             int radiationLevel = gamma ? IrradiatedEffect.BLUE_LEVEL : 0;
             for (Entity entity : level.getEntities(living, hitBox, Entity::canBeHitByProjectile)) {
                 if (!entity.is(living) && !entity.isAlliedTo(living) && !living.isAlliedTo(entity) && !living.isPassengerOfSameVehicle(entity)) {
-                    boolean flag = entity instanceof TremorzillaEntity || entity.hurt(ACDamageTypes.causeRaygunDamage(level.registryAccess(), living), gamma ? 2F : 1.5F);
-                    if (flag && entity instanceof LivingEntity livingEntity && !livingEntity.getType().is(ACTagRegistry.RESISTS_RADIATION)) {
+                    // Separate damage types and effects for normal raygun vs gamma ray
+                    boolean resistsRaygun = entity.getType().is(ACTagRegistry.RESISTS_RAYGUN);
+                    float damage = gamma ? 1F : 0.75F;
+                    DamageSource damageSource = gamma ? 
+                        ACDamageTypes.causeGammaRayDamage(level.registryAccess(), living) : 
+                        ACDamageTypes.causeRaygunDamage(level.registryAccess(), living);
+                    boolean damageSuccessful = !resistsRaygun && entity.hurt(damageSource, damage);
+                    if (damageSuccessful && entity instanceof LivingEntity livingEntity && !livingEntity.getType().is(ACTagRegistry.RESISTS_RADIATION)) {
                         if (livingEntity.addEffect(new MobEffectInstance(ACEffectRegistry.IRRADIATED.get(), 800, radiationLevel))) {
                             AlexsCaves.sendMSGToAll(new UpdateEffectVisualityEntityMessage(entity.getId(), living.getId(), gamma ? 4 : 0, 800));
                         }

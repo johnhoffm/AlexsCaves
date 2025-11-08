@@ -42,7 +42,7 @@ public abstract class ItemTickableSound extends AbstractTickableSoundInstance {
             this.y = (double)((float)this.user.getY());
             this.z = (double)((float)this.user.getZ());
             tickVolume(itemStack);
-        } else {
+        } else if (!this.isStopped()) {
             this.stop();
         }
     }
