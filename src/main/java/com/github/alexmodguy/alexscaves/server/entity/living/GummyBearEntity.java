@@ -181,6 +181,7 @@ public class GummyBearEntity extends Animal implements IDancesToJukebox, IAnimat
         compound.putInt("GummyColor", this.getGummyColor().ordinal());
         if (digestingEffect != null) {
             compound.putString("DigestingEffect", digestingEffect.toString());
+            compound.putInt("JellyBeansToMake", this.jellybeansToMake);
         }
         compound.putBoolean("BearSleeping", this.isBearSleeping());
         compound.putBoolean("BearSitting", this.isSitting());
@@ -192,7 +193,9 @@ public class GummyBearEntity extends Animal implements IDancesToJukebox, IAnimat
         super.readAdditionalSaveData(compound);
         this.setGummyColor(GummyColors.fromOrdinal(compound.getInt("GummyColor")));
         if (compound.contains("DigestingEffect")) {
-            digestingEffect = ResourceLocation.parse(compound.getString("DigestingEffect"));
+            this.digestEffect(ForgeRegistries.POTIONS.getValue(ResourceLocation.parse(compound.getString("DigestingEffect"))));
+            this.setDigesting(digestingEffect != null);
+            this.jellybeansToMake = compound.getInt("JellyBeansToMake");
         }
         this.setBearSleeping(compound.getBoolean("BearSleeping"));
         this.setStanding(compound.getBoolean("BearSitting"));
