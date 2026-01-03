@@ -1,0 +1,8 @@
+{
+  "__comment": "Blocks that the Volcanic Core converts directly to lava when heating.",
+  "values": [
+    "minecraft:cobblestone",
+    "minecraft:stone",
+    "alexscaves:limestone"
+  ]
+}

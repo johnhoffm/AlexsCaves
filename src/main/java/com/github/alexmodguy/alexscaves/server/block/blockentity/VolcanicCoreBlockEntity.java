@@ -2,15 +2,21 @@ package com.github.alexmodguy.alexscaves.server.block.blockentity;
 
 import com.github.alexmodguy.alexscaves.AlexsCaves;
 import com.github.alexmodguy.alexscaves.server.block.ACBlockRegistry;
+import com.github.alexmodguy.alexscaves.server.block.PrimalMagmaBlock;
 import com.github.alexmodguy.alexscaves.server.entity.ACEntityRegistry;
 import com.github.alexmodguy.alexscaves.server.entity.item.TephraEntity;
 import com.github.alexmodguy.alexscaves.server.entity.living.LuxtructosaurusEntity;
 import com.github.alexmodguy.alexscaves.server.entity.living.SauropodBaseEntity;
 import com.github.alexmodguy.alexscaves.server.item.ACItemRegistry;
 import com.github.alexmodguy.alexscaves.server.misc.ACAdvancementTriggerRegistry;
+import com.github.alexmodguy.alexscaves.server.misc.ACSoundRegistry;
 import com.github.alexmodguy.alexscaves.server.misc.ACTagRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntitySelector;
@@ -68,6 +74,68 @@ public class VolcanicCoreBlockEntity extends BlockEntity {
         } else {
             entity.battleTime = 0;
         }
+        
+        int heatingRate = AlexsCaves.COMMON_CONFIG.volcanicCoreHeatingRate.get();
+        if (level.getGameTime() % heatingRate == 0) {
+            int radius = AlexsCaves.COMMON_CONFIG.volcanicCoreHeatingRadius.get();
+            int heatingCount = AlexsCaves.COMMON_CONFIG.volcanicCoreHeatingCount.get();
+            int diameter = radius * 2 + 1;
+            int totalBlocks = diameter * diameter * diameter - 1; // exclude center
+            int centerIndex = (diameter * diameter * diameter) / 2;
+            
+            for (int i = 0; i < heatingCount; i++) {
+                int randomIndex = level.random.nextInt(totalBlocks);
+                
+                int idx = randomIndex;
+                if (idx >= centerIndex) {
+                     idx++; // skip center
+                }
+                
+                int dx = (idx % diameter) - radius;
+                int dy = ((idx / diameter) % diameter) - radius;    
+                int dz = (idx / (diameter * diameter)) - radius;
+                
+                BlockPos targetPos = blockPos.offset(dx, dy, dz);
+                BlockState targetState = level.getBlockState(targetPos);
+
+                BlockState heatedState = getHeatedBlockState(targetState);
+                if (heatedState != null) {
+                    level.setBlockAndUpdate(targetPos, heatedState);
+                    // Play sound and spawn particle effect
+                    boolean isLava = heatedState.getFluidState().is(FluidTags.LAVA);
+                    if (isLava) {
+                        level.playSound(null, targetPos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 0.5F, 0.8F + level.random.nextFloat() * 0.4F);
+                    } else {
+                        level.playSound(null, targetPos, ACSoundRegistry.PRIMAL_MAGMA_FISSURE_CLOSE.get(), SoundSource.BLOCKS, 0.5F, 0.8F + level.random.nextFloat() * 0.4F);
+                    }
+                    if (level instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(ParticleTypes.LAVA, targetPos.getX() + 0.5, targetPos.getY() + 1.0, targetPos.getZ() + 0.5, 2, 0.25, 0.1, 0.25, 0.0);
+                    }
+                }
+            }
+        }
+    }
+    
+    /**
+     * Returns the next heated state for a block, or null if the block cannot be heated.
+     * volcanic_core_melts_to_lava tag -> Lava
+     * Basalt -> Smooth Basalt -> Flood Basalt -> Inactive Primal Magma -> Active Primal Magma -> Lava
+     */
+    private static BlockState getHeatedBlockState(BlockState state) {
+        if (state.is(ACTagRegistry.VOLCANIC_CORE_MELTS_TO_LAVA)) {
+            return net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState();
+        } else if (state.is(net.minecraft.world.level.block.Blocks.BASALT)) {
+            return net.minecraft.world.level.block.Blocks.SMOOTH_BASALT.defaultBlockState();
+        } else if (state.is(net.minecraft.world.level.block.Blocks.SMOOTH_BASALT)) {
+            return ACBlockRegistry.FLOOD_BASALT.get().defaultBlockState();
+        } else if (state.is(ACBlockRegistry.FLOOD_BASALT.get())) {
+            return ACBlockRegistry.PRIMAL_MAGMA.get().defaultBlockState().setValue(PrimalMagmaBlock.ACTIVE, false).setValue(PrimalMagmaBlock.PERMANENT, true);
+        } else if (state.is(ACBlockRegistry.PRIMAL_MAGMA.get()) && !state.getValue(PrimalMagmaBlock.ACTIVE)) {
+            return state.setValue(PrimalMagmaBlock.ACTIVE, true);
+        } else if (state.is(ACBlockRegistry.PRIMAL_MAGMA.get()) && state.getValue(PrimalMagmaBlock.ACTIVE)) {
+            return net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState();
+        }
+        return null;
     }
 
     public void load(CompoundTag tag) {

@@ -43,7 +43,14 @@ public class PrimalMagmaBlock extends Block {
             return 5;
         }).strength(0.5F).isValidSpawn((state, getter, pos, entityType) -> {
             return entityType.fireImmune();
-        }).hasPostProcess((state, getter, pos) -> true).emissiveRendering((state, getter, pos) -> true).sound(ACSoundTypes.FLOOD_BASALT).randomTicks());
+        })
+                .hasPostProcess((state, getter, pos) -> true)
+                .emissiveRendering((state, getter, pos) -> true)
+                .sound(ACSoundTypes.FLOOD_BASALT)
+                .randomTicks()
+                // force solid to prevent lava flow from destroying block
+                .forceSolidOn());
+
         this.registerDefaultState(this.defaultBlockState().setValue(ACTIVE, Boolean.valueOf(false)).setValue(PERMANENT, Boolean.valueOf(false)));
     }
 

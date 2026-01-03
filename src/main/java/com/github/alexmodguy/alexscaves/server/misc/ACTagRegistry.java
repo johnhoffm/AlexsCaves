@@ -34,6 +34,7 @@ public class ACTagRegistry {
     public static final TagKey<Block> REGENERATES_AFTER_PRIMORDIAL_BOSS_FIGHT = registerBlockTag("regenerates_after_primordial_boss_fight");
     public static final TagKey<Block> LUXTRUCTOSAURUS_BREAKS = registerBlockTag("luxtructosaurus_breaks");
     public static final TagKey<Block> VOLCANO_BLOCKS = registerBlockTag("volcano_blocks");
+    public static final TagKey<Block> VOLCANIC_CORE_MELTS_TO_LAVA = registerBlockTag("volcanic_core_melts_to_lava");
     public static final TagKey<Block> NUKE_PROOF = registerBlockTag("nuke_proof");
     public static final TagKey<Block> RAYCAT_SLEEPS_ON = registerBlockTag("raycat_sleeps_on");
     public static final TagKey<Block> REMOTE_DETONATOR_ACTIVATES = registerBlockTag("remote_detonator_activates");
