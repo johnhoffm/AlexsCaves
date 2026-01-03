@@ -54,7 +54,7 @@ public class ACTagRegistry {
     public static final TagKey<Item> GALENA_GAUNTLET_CRYSTALLIZATION_ITEMS = registerItemTag("galena_gauntlet_crystallization_items");
     public static final TagKey<Item> TELETOR_SPAWNS_WITH = registerItemTag("teletor_spawns_with");
     public static final TagKey<Item> VALLUMRAPTOR_STEALS = registerItemTag("vallumraptor_steals");
-    public static final TagKey<Item> RAW_MEATS = registerItemTag("raw_meats");
+    public static final TagKey<Item> RAW_MEATS = registerForgeItemTag("raw_meats");
     public static final TagKey<Item> NUCLEAR_FURNACE_BARRELS = registerItemTag("nuclear_furnace_barrels");
     public static final TagKey<Item> NUCLEAR_FURNACE_RODS = registerItemTag("nuclear_furnace_rods");
     public static final TagKey<Item> SEA_PIG_DIGESTS = registerItemTag("sea_pig_digests");
@@ -97,6 +97,10 @@ public class ACTagRegistry {
 
     private static TagKey<EntityType<?>> registerEntityTag(String name) {
         return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(AlexsCaves.MODID, name));
+    }
+
+    private static TagKey<Item> registerForgeItemTag(String name) {
+        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("forge", name));
     }
 
     private static TagKey<Item> registerItemTag(String name) {

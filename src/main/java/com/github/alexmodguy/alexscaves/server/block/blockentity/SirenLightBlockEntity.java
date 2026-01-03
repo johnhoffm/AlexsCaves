@@ -74,9 +74,12 @@ public class SirenLightBlockEntity extends BlockEntity {
     }
 
 
-    public void setColor(int setTo) {
+    public boolean setColor(int setTo) {
+        if (this.color == setTo) return false;
         this.color = setTo;
+        this.setChanged();
         level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
+        return true;
     }
 
     public int getColor() {

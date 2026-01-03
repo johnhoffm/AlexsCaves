@@ -24,7 +24,7 @@ public class RecipeCaveMap extends ShapedRecipe implements SpecialRecipeInGuideB
 
     public ItemStack assemble(CraftingContainer container, RegistryAccess registryAccess) {
         ItemStack scroll = ItemStack.EMPTY;
-        for (int i = 0; i <= container.getContainerSize(); ++i) {
+        for (int i = 0; i <= container.getContainerSize() && i < this.getWidth() * this.getHeight(); ++i) {
             if (!container.getItem(i).isEmpty() && container.getItem(i).is(ACItemRegistry.CAVE_CODEX.get())) {
                 if (scroll.isEmpty()) {
                     scroll = container.getItem(i);
